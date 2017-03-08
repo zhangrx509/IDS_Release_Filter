@@ -26,9 +26,9 @@ while not end:
         print('Current issues: ' + current_issues)
 
 #format release filter
-release_filter = 'Issue key = ' + JIRA_project_key + '-' + list[0]
+release_filter = 'Issuekey = ' + JIRA_project_key + '-' + list[0]
 for issue in list[1:]:
-    release_filter += ' OR Issue key = '  + JIRA_project_key + '-' + issue
+    release_filter += ' OR Issuekey = '  + JIRA_project_key + '-' + issue
 
 #output to release_filter.txt
 output_file = open('release_filter.txt', 'w')
