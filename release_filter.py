@@ -16,8 +16,7 @@ else:
 
     #output log contains JIRA project issues
     JIRA_project_key = 'IDSM'
-    p = subprocess.run('git log --grep=' + JIRA_project_key + '- --pretty="%B"', stdout=subprocess.PIPE)  
-    print(p.stdout.decode('ascii'))
+    p = subprocess.run('git log --grep=' + JIRA_project_key + '- --pretty="%B" ' + sys.argv[3] + '..' + sys.argv[2], stdout=subprocess.PIPE)  
     issue_log = p.stdout.decode('ascii') 
 
     #Get JIRA issue list
