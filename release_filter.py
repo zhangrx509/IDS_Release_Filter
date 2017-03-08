@@ -1,36 +1,36 @@
+#!/usr/bin/python
+# -*- coding: UTF-8 -*- 
 
-# get JIRA project key
-JIRA_project_key = 'IDSM'
-temp_key = input('Set JIRA project key, press ENTER to use default(' + JIRA_project_key + '):')
-if temp_key != '':
-    JIRA_project_key = temp_key
-print('JIRA project key is set to ' + JIRA_project_key +'\n')
+import os
+import sys
+import subprocess
+import re
 
-# get input for issue list
-list = []
-end = False
-while not end:
-    issues = input('Add JIRA Issue(s), press ENTER only to finish:')
-    if issues == '':
-        end = True
-    else:
-        list += issues.split()
+if len(sys.argv) != 4:
+    print('''Usage:
+    release_filter.py <repo_root_path> <this_release_SHA-1> <last_release_SHA-1>''')
+else:
+    #change dir to git repo
+    old_dir = os.getcwd()
+    os.chdir(sys.argv[1])
 
-        # print current issues to screen
-        current_issues = ''
-        for index, issue in enumerate(list):
-            current_issues += JIRA_project_key + '-' + issue + ' ' 
-            # change to new line every 4 issues
-            if index % 4 == 3:
-                current_issues += '\n                '
-        print('Current issues: ' + current_issues)
+    #output log contains JIRA project issues
+    JIRA_project_key = 'IDSM'
+    p = subprocess.run('git log --grep=' + JIRA_project_key + '- --pretty="%B"', stdout=subprocess.PIPE)  
+    print(p.stdout.decode('ascii'))
+    issue_log = p.stdout.decode('ascii') 
 
-#format release filter
-release_filter = 'Issuekey = ' + JIRA_project_key + '-' + list[0]
-for issue in list[1:]:
-    release_filter += ' OR Issuekey = '  + JIRA_project_key + '-' + issue
+    #Get JIRA issue list
+    list = re.findall(JIRA_project_key + r'-\d+',issue_log)
+    print(list)
 
-#output to release_filter.txt
-output_file = open('release_filter.txt', 'w')
-output_file.write(release_filter)
-print('Done. Please see output in release_filter.txt')
+    #format release filter
+    release_filter = 'Issuekey = ' + list[0]
+    for issue in list[1:]:
+        release_filter += ' OR Issuekey = ' + issue
+
+    #output to release_filter.txt
+    os.chdir(old_dir)
+    output_file = open('release_filter.txt', 'w')
+    output_file.write(release_filter)
+    print('Done. Please see output in release_filter.txt')
